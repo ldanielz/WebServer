@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+   <title>Virtual Front Panel</title>
+   <link rel="icon" type="image/png" href="favicon.png" />
+   <style>
+      body {
+         margin: 0;
+         padding: 0;
+      }
+
+      div.outer {
+         display: table;
+         position: absolute;
+         height: 100%;
+         width: 100%;
+      }
+
+      div.outer.not-clickable:after {
+         background: transparent;
+         content: '';
+         position: absolute;
+         left: 0;
+         right: 0;
+         top: 0;
+         bottom: 0;
+         z-index: 1;
+      }
+
+      div.middle {
+         display: table-cell;
+         vertical-align: middle;
+         text-align: center;
+      }
+
+      div.panel {
+         display: inline-block;
+         margin-left: auto;
+         margin-right: auto;
+         position: relative;
+      }
+
+      svg.panel {
+         border-style: solid;
+         border-width: 2px;
+         display: block;
+         margin-left: auto;
+         margin-right: auto;
+      }
+
+      .scroller-path {
+         cursor: pointer;
+         transition: fill 0.2s;
+      }
+
+      .canvas {
+         position: absolute;
+      }
+
+      p.info {
+         color: #C0C0C0;
+      }
+
+      p.error {
+         font-weight: bold;
+         background-color: white;
+         color: #FF0000;
+      }
+
+      textarea {
+         font-family: inherit;
+         font-size: inherit;
+      }
+
+      .pagination {
+         display: none;
+      }
+
+      .pagination svg {
+         cursor: pointer;
+         margin: 0 5px;
+      }
+   </style>
+
+   <script>
+      var loadedScripts = [];
+
+      function require(filename) {
+         // This function provides a bypass for script loading under the simulator. We know the script we are trying to load and we know, potentially that we are 
+         // running under a simulator etc. So now, if we are under the simulator, we can re-direct the script request back to the dev browser.                        
+         for (var i in loadedScripts)
+            if (loadedScripts[i] == filename)
+               return;
+         loadedScripts.push(filename);
+
+         // Get the file extension
+         var re = /(?:\.([^.]+))?$/;
+         var ext = re.exec(filename)[1];
+
+         // Create a SCRIPT or LINK object to hold the script
+         var newScript;
+         if (ext == "js") {
+            var content = "";
+            if (typeof (transport) == "object")
+               content = transport.loadLibrary(filename);
+            newScript = document.createElement("script");
+            newScript.type = "text/javascript";
+            if (content.length > 0) {
+               newScript.textContent = content;
+            } else {
+               newScript.src = filename;
+               newScript.async = false;
+            }
+         } else if (ext == "css") {
+            newScript = document.createElement("link");
+            newScript.href = filename;
+            newScript.rel = "stylesheet";
+            newScript.type = "text/css";
+         }
+
+         document.head.appendChild(newScript);
+      }
+   </script>
+
+   <script src="transport.js" type="text/javascript"></script>
+   <script src="jquery.js" type="text/javascript"></script>
+   <script src="panel.js" type="text/javascript"></script>
+   <script src="controls.js" type="text/javascript"></script>
+
+</head>
+
+<body style="background-color:black" onload="initPage()">
+   <div class="outer">
+      <div class="middle">
+         <table style="width:100%">
+            <tr>
+               <td class="scroller">
+                  <svg width="100" height="100" viewBox="-1009.01 0 1009.01 1344" onclick="selectPreviousTab()">
+                     <path class="scroller-path" transform="scale(-1,1)" fill="#4D4D4D"
+                        d="M0,0h274.12L802,673.5L274.12,1344H0l528-670.5L0,0z" style="display:none"></path>
+                  </svg>
+               </td>
+               <td>
+                  <div id="container" class="panel">
+                     <p class="info">Loading panel graphics...</p>
+                  </div>
+               </td>
+               <td class="scroller">
+                  <svg width="100" height="100" viewBox="0 0 1009.01 1344" onclick="selectNextTab()">
+                     <path class="scroller-path" transform="scale(1,1)" fill="#4D4D4D"
+                        d="M0,0h274.12L802,673.5L274.12,1344H0l528-670.5L0,0z" style="display:none"></path>
+                  </svg>
+               </td>
+            </tr>
+            <tr class="pagination">
+               <td colspan="3"></td>
+            </tr>
+         </table>
+      </div>
+   </div>
+</body>
+
+</html>
